@@ -21,6 +21,21 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 
 function CertificateCard({ certificate, index }: { certificate: Certificate; index: number }) {
+    const [isDownloading, setIsDownloading] = useState(false);
+
+    const handleDownload = async () => {
+        if (!certificate.playlist_id) return;
+        setIsDownloading(true);
+        try {
+            await api.downloadCertificate(Number(certificate.playlist_id));
+        } catch (error) {
+            console.error("Download failed:", error);
+            alert("Failed to download certificate. Please try again.");
+        } finally {
+            setIsDownloading(false);
+        }
+    };
+
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -52,22 +67,15 @@ function CertificateCard({ certificate, index }: { certificate: Certificate; ind
                             </div>
 
                             <div className="flex items-center gap-3">
-                                {certificate.pdf_url && (
-                                    <a
-                                        href={certificate.pdf_url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="inline-flex"
-                                    >
-                                        <Button
-                                            size="sm"
-                                            className="bg-gray-900 text-white hover:bg-black rounded-lg shadow-md shadow-gray-200"
-                                        >
-                                            <Download className="h-3.5 w-3.5 mr-2" />
-                                            Download PDF
-                                        </Button>
-                                    </a>
-                                )}
+                                <Button
+                                    size="sm"
+                                    className="bg-gray-900 text-white hover:bg-black rounded-lg shadow-md shadow-gray-200"
+                                    onClick={handleDownload}
+                                    disabled={isDownloading}
+                                >
+                                    <Download className="h-3.5 w-3.5 mr-2" />
+                                    {isDownloading ? "Downloading..." : "Download Certificate"}
+                                </Button>
                                 <Button
                                     size="sm"
                                     variant="outline"

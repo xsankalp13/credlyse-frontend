@@ -190,6 +190,29 @@ class ApiClient {
         });
         return this.handleResponse<Certificate>(response);
     }
+
+    async downloadCertificate(playlistId: number): Promise<void> {
+        const response = await fetch(`${API_BASE_URL}/api/v1/certificates/${playlistId}/download`, {
+            method: "GET",
+            headers: this.getHeaders(),
+        });
+
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({ detail: "Download failed" }));
+            throw new Error(error.detail || "Download failed");
+        }
+
+        // Create blob and trigger download
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = response.headers.get("content-disposition")?.split("filename=")[1]?.replace(/"/g, "") || "certificate.jpg";
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        a.remove();
+    }
 }
 
 export const api = new ApiClient();
