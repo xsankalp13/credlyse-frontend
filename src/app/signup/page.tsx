@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 
 export default function SignupPage() {
     const [email, setEmail] = useState("");
@@ -20,7 +21,8 @@ export default function SignupPage() {
     const [fullName, setFullName] = useState("");
     const [role, setRole] = useState<UserRole>(UserRole.STUDENT);
     const [isLoading, setIsLoading] = useState(false);
-    const { signup } = useAuth();
+    const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+    const { signup, googleLogin } = useAuth();
     const router = useRouter();
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -29,14 +31,32 @@ export default function SignupPage() {
 
         try {
             await signup(email, password, fullName, role);
-            toast.success("Account created!", { description: "Welcome to Credlyse!" });
-            router.push("/");
+            toast.success("Verification code sent!", {
+                description: "Check your email for the 6-digit code"
+            });
+            // Redirect to verify-email page with email as query param
+            router.push(`/verify-email?email=${encodeURIComponent(email)}`);
         } catch (error) {
             toast.error("Signup failed", {
                 description: error instanceof Error ? error.message : "Could not create account",
             });
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    const handleGoogleSignup = async (idToken: string) => {
+        setIsGoogleLoading(true);
+        try {
+            await googleLogin(idToken);
+            toast.success("Welcome!", { description: "You've signed up with Google." });
+            router.push("/");
+        } catch (error) {
+            toast.error("Google signup failed", {
+                description: error instanceof Error ? error.message : "Authentication failed",
+            });
+        } finally {
+            setIsGoogleLoading(false);
         }
     };
 
@@ -151,7 +171,7 @@ export default function SignupPage() {
 
                             <Button
                                 type="submit"
-                                disabled={isLoading}
+                                disabled={isLoading || isGoogleLoading}
                                 className="w-full h-11 bg-rose-500 hover:bg-rose-600 text-white font-medium shadow-md shadow-rose-200 transition-all"
                             >
                                 {isLoading ? (
@@ -164,6 +184,23 @@ export default function SignupPage() {
                                 )}
                             </Button>
                         </form>
+
+                        {/* Divider */}
+                        <div className="relative my-6">
+                            <div className="absolute inset-0 flex items-center">
+                                <div className="w-full border-t border-gray-200" />
+                            </div>
+                            <div className="relative flex justify-center text-sm">
+                                <span className="bg-white px-3 text-gray-500">or continue with</span>
+                            </div>
+                        </div>
+
+                        {/* Google Sign-In */}
+                        <GoogleSignInButton
+                            onSuccess={handleGoogleSignup}
+                            onError={(error) => toast.error("Google signup failed", { description: error.message })}
+                            text="Sign up with Google"
+                        />
 
                         <div className="mt-6 text-center">
                             <p className="text-sm text-gray-500">

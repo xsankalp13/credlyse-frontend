@@ -12,6 +12,7 @@ export interface User {
     full_name: string;
     role: UserRole;
     created_at: string;
+    profile_picture_url?: string | null;
 }
 
 export interface UserCreate {
@@ -29,6 +30,26 @@ export interface Token {
 export interface LoginCredentials {
     username: string; // email
     password: string;
+}
+
+export interface SignupResponse {
+    message: string;
+    email: string;
+    requires_verification: boolean;
+}
+
+export interface VerifyEmailRequest {
+    email: string;
+    otp: string;
+}
+
+export interface ResendOTPResponse {
+    message: string;
+    cooldown_seconds: number | null;
+}
+
+export interface GoogleAuthRequest {
+    id_token: string;
 }
 
 // Course related types

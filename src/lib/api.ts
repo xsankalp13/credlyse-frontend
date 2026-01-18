@@ -4,7 +4,7 @@
  * Handles all HTTP requests with JWT authentication
  */
 
-import type { Token, User, UserCreate, LoginCredentials, Playlist, Enrollment, CourseAnalytics, Certificate } from "@/types";
+import type { Token, User, UserCreate, LoginCredentials, Playlist, Enrollment, CourseAnalytics, Certificate, SignupResponse } from "@/types";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -39,13 +39,13 @@ class ApiClient {
 
     // ==================== Auth Endpoints ====================
 
-    async signup(userData: UserCreate): Promise<User> {
+    async signup(userData: UserCreate): Promise<SignupResponse> {
         const response = await fetch(`${API_BASE_URL}/api/v1/auth/signup`, {
             method: "POST",
             headers: this.getHeaders(false),
             body: JSON.stringify(userData),
         });
-        return this.handleResponse<User>(response);
+        return this.handleResponse<SignupResponse>(response);
     }
 
     async login(credentials: LoginCredentials): Promise<Token> {
@@ -61,6 +61,51 @@ class ApiClient {
             body: formData.toString(),
         });
         return this.handleResponse<Token>(response);
+    }
+
+    async verifyEmail(email: string, otp: string): Promise<Token> {
+        const response = await fetch(`${API_BASE_URL}/api/v1/auth/verify-email`, {
+            method: "POST",
+            headers: this.getHeaders(false),
+            body: JSON.stringify({ email, otp }),
+        });
+        return this.handleResponse<Token>(response);
+    }
+
+    async resendOtp(email: string): Promise<{ message: string; cooldown_seconds: number | null }> {
+        const response = await fetch(`${API_BASE_URL}/api/v1/auth/resend-otp`, {
+            method: "POST",
+            headers: this.getHeaders(false),
+            body: JSON.stringify({ email }),
+        });
+        return this.handleResponse<{ message: string; cooldown_seconds: number | null }>(response);
+    }
+
+    async googleAuth(idToken: string): Promise<Token> {
+        const response = await fetch(`${API_BASE_URL}/api/v1/auth/google`, {
+            method: "POST",
+            headers: this.getHeaders(false),
+            body: JSON.stringify({ id_token: idToken }),
+        });
+        return this.handleResponse<Token>(response);
+    }
+
+    async forgotPassword(email: string): Promise<{ message: string; email: string }> {
+        const response = await fetch(`${API_BASE_URL}/api/v1/auth/forgot-password`, {
+            method: "POST",
+            headers: this.getHeaders(false),
+            body: JSON.stringify({ email }),
+        });
+        return this.handleResponse<{ message: string; email: string }>(response);
+    }
+
+    async resetPassword(email: string, otp: string, newPassword: string): Promise<{ message: string }> {
+        const response = await fetch(`${API_BASE_URL}/api/v1/auth/reset-password`, {
+            method: "POST",
+            headers: this.getHeaders(false),
+            body: JSON.stringify({ email, otp, new_password: newPassword }),
+        });
+        return this.handleResponse<{ message: string }>(response);
     }
 
     // ==================== User Endpoints ====================
