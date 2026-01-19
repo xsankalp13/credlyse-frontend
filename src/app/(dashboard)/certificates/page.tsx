@@ -27,7 +27,16 @@ function CertificateCard({ certificate, index }: { certificate: Certificate; ind
         if (!certificate.playlist_id) return;
         setIsDownloading(true);
         try {
-            await api.downloadCertificate(Number(certificate.playlist_id));
+            // Claim certificate - creates new if needed, returns existing if already claimed
+            const result = await api.claimCertificate(String(certificate.playlist_id));
+
+            // Open the PDF URL (Cloudinary URL) in new tab for download
+            if (result.pdf_url) {
+                window.open(result.pdf_url, "_blank");
+            } else {
+                // Fallback to legacy download endpoint
+                await api.downloadCertificate(Number(certificate.playlist_id));
+            }
         } catch (error) {
             console.error("Download failed:", error);
             alert("Failed to download certificate. Please try again.");
