@@ -173,9 +173,13 @@ function EnrollmentCard({ enrollment }: { enrollment: Enrollment }) {
                         <h3 className="font-bold text-lg text-gray-900 truncate mb-1 group-hover:text-black transition-colors flex-1 tracking-tight">
                             {enrollment.playlist?.title || "Untitled Course"}
                         </h3>
-                        {(enrollment.playlist as any)?.youtube_playlist_id && (
+                        {(enrollment.playlist as any)?.Youtubelist_id && (
                             <a
-                                href={`https://www.youtube.com/playlist?list=${(enrollment.playlist as any).youtube_playlist_id}`}
+                                href={
+                                    (enrollment.playlist as any)?.type === "SINGLE_VIDEO"
+                                        ? `https://www.youtube.com/watch?v=${(enrollment.playlist as any).Youtubelist_id}`
+                                        : `https://www.youtube.com/playlist?list=${(enrollment.playlist as any).Youtubelist_id}`
+                                }
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 onClick={(e) => e.stopPropagation()}
