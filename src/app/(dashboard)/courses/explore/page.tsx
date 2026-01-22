@@ -26,17 +26,17 @@ import { toast } from "sonner";
 
 function CourseCardSkeleton() {
     return (
-        <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-            <Skeleton className="aspect-video w-full" />
+        <div className="bg-white rounded-none border border-gray-200 overflow-hidden">
+            <Skeleton className="aspect-video w-full rounded-none" />
             <div className="p-5 space-y-3">
-                <Skeleton className="h-5 w-3/4" />
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-2/3" />
+                <Skeleton className="h-5 w-3/4 rounded-none" />
+                <Skeleton className="h-4 w-full rounded-none" />
+                <Skeleton className="h-4 w-2/3 rounded-none" />
                 <div className="flex gap-3 pt-2">
-                    <Skeleton className="h-4 w-20" />
-                    <Skeleton className="h-4 w-24" />
+                    <Skeleton className="h-4 w-20 rounded-none" />
+                    <Skeleton className="h-4 w-24 rounded-none" />
                 </div>
-                <Skeleton className="h-10 w-full mt-4" />
+                <Skeleton className="h-10 w-full mt-4 rounded-none" />
             </div>
         </div>
     );
@@ -157,7 +157,7 @@ export default function ExplorePage() {
                         placeholder="Search by course title or creator name..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-12 py-6 bg-white border-gray-200 rounded-xl text-base focus:border-rose-300 focus:ring-rose-100"
+                        className="pl-12 py-6 bg-white border-gray-200 rounded-none text-base focus:border-black focus:ring-black/10"
                     />
                     {isLoading && debouncedSearch && (
                         <Loader2 className="absolute right-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 animate-spin" />
@@ -173,9 +173,9 @@ export default function ExplorePage() {
                     ))}
                 </div>
             ) : courses.length === 0 ? (
-                <div className="bg-gray-50 rounded-2xl p-12 text-center">
-                    <BookOpen className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                    <h2 className="text-lg font-semibold text-gray-900 mb-2">
+                <div className="bg-gray-50 rounded-none border border-gray-200 p-12 text-center">
+                    <BookOpen className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <h2 className="text-lg font-bold text-gray-900 mb-2">
                         {debouncedSearch ? "No courses found" : "No courses available"}
                     </h2>
                     <p className="text-gray-500">
@@ -195,7 +195,7 @@ export default function ExplorePage() {
                         return (
                             <div
                                 key={course.id}
-                                className="group bg-white rounded-2xl border border-gray-100 hover:border-gray-200 hover:shadow-lg hover:shadow-gray-100/50 transition-all overflow-hidden flex flex-col"
+                                className="group bg-white rounded-none border border-gray-200 hover:border-black transition-all duration-300 overflow-hidden flex flex-col"
                             >
                                 {/* Thumbnail */}
                                 <Link href={`/courses/${course.id}`} className="block">
@@ -204,7 +204,7 @@ export default function ExplorePage() {
                                             <img
                                                 src={course.thumbnail_url}
                                                 alt={course.title}
-                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 grayscale group-hover:grayscale-0"
                                             />
                                         ) : (
                                             <div className="w-full h-full flex items-center justify-center bg-gray-50">
@@ -213,7 +213,7 @@ export default function ExplorePage() {
                                         )}
                                         {course.video_count && (
                                             <div className="absolute bottom-3 right-3">
-                                                <span className="text-xs font-semibold text-white bg-black/60 backdrop-blur-md px-2 py-1 rounded-lg">
+                                                <span className="text-xs font-bold text-white bg-black/80 backdrop-blur-md px-2 py-1 rounded-none uppercase tracking-wider">
                                                     {course.video_count} videos
                                                 </span>
                                             </div>
@@ -224,7 +224,7 @@ export default function ExplorePage() {
                                 {/* Content */}
                                 <div className="p-5 flex-1 flex flex-col">
                                     <Link href={`/courses/${course.id}`}>
-                                        <h3 className="font-semibold text-gray-900 line-clamp-2 mb-2 group-hover:text-rose-600 transition-colors">
+                                        <h3 className="font-bold text-gray-900 line-clamp-2 mb-2 group-hover:text-black transition-colors tracking-tight">
                                             {course.title}
                                         </h3>
                                     </Link>
@@ -233,13 +233,13 @@ export default function ExplorePage() {
                                     </p>
 
                                     {/* Creator & Stats */}
-                                    <div className="flex items-center gap-3 text-sm text-gray-400 mb-4">
+                                    <div className="flex items-center gap-3 text-xs font-bold text-gray-400 mb-4 uppercase tracking-wide">
                                         <span className="flex items-center gap-1.5">
-                                            <Users className="h-4 w-4" />
+                                            <Users className="h-3.5 w-3.5" />
                                             {creatorName}
                                         </span>
                                         <span className="flex items-center gap-1.5">
-                                            <Video className="h-4 w-4" />
+                                            <Video className="h-3.5 w-3.5" />
                                             {course.video_count || 0} videos
                                         </span>
                                     </div>
@@ -249,9 +249,9 @@ export default function ExplorePage() {
                                         <Link href={`/courses/${course.id}`}>
                                             <Button
                                                 variant="outline"
-                                                className="w-full border-green-200 text-green-600 hover:bg-green-50 rounded-xl"
+                                                className="w-full border-gray-200 text-gray-900 hover:bg-gray-50 rounded-none font-semibold h-11"
                                             >
-                                                <CheckCircle2 className="mr-2 h-4 w-4" />
+                                                <CheckCircle2 className="mr-2 h-4 w-4 text-green-600" />
                                                 Enrolled - Continue Learning
                                             </Button>
                                         </Link>
@@ -259,7 +259,7 @@ export default function ExplorePage() {
                                         <Button
                                             onClick={() => handleEnroll(course)}
                                             disabled={isEnrolling}
-                                            className="w-full bg-rose-500 hover:bg-rose-600 text-white rounded-xl"
+                                            className="w-full bg-black hover:bg-gray-800 text-white rounded-none font-semibold h-11"
                                         >
                                             {isEnrolling ? (
                                                 <>

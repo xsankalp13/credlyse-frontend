@@ -66,14 +66,14 @@ function AppSidebar() {
     const navItems = user?.role === UserRole.CREATOR ? creatorNavItems : studentNavItems;
 
     return (
-        <Sidebar className="border-r border-gray-100 bg-white">
-            <SidebarHeader className="p-4">
+        <Sidebar className="border-r border-gray-200 bg-white">
+            <SidebarHeader className="p-4 border-b border-gray-100">
                 <Link href="/" className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-500 shadow-md shadow-rose-200">
-                        <GraduationCap className="h-5 w-5 text-white" />
+                    <div className="flex h-10 w-10 items-center justify-center bg-black text-white shadow-none">
+                        <GraduationCap className="h-5 w-5" />
                     </div>
-                    <span className="text-lg font-semibold text-gray-900">
-                        Credlyse
+                    <span className="text-xl font-bold text-gray-900 tracking-tight">
+                        CredLyse
                     </span>
                 </Link>
             </SidebarHeader>
@@ -92,12 +92,12 @@ function AppSidebar() {
                                         <SidebarMenuButton
                                             asChild
                                             isActive={isActive}
-                                            className={`transition-all rounded-lg ${isActive
-                                                    ? "bg-rose-50 text-rose-600 font-medium"
-                                                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                                            className={`transition-all rounded-none border-l-2 ${isActive
+                                                ? "bg-gray-50 border-black text-black font-semibold"
+                                                : "border-transparent text-gray-600 hover:text-black hover:bg-gray-50"
                                                 }`}
                                         >
-                                            <Link href={item.href}>
+                                            <Link href={item.href} className="py-2.5">
                                                 <item.icon className="h-4 w-4" />
                                                 <span>{item.title}</span>
                                             </Link>
@@ -114,15 +114,15 @@ function AppSidebar() {
                 <Separator className="mb-4 bg-gray-100" />
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <button className="flex items-center gap-3 w-full p-2 rounded-lg hover:bg-gray-50 transition-colors">
-                            <Avatar className="h-9 w-9 border border-gray-100">
-                                <AvatarFallback className="bg-rose-100 text-rose-600 text-sm font-medium">
+                        <button className="flex items-center gap-3 w-full p-2 rounded-none hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-200">
+                            <Avatar className="h-9 w-9 border border-gray-200 rounded-none">
+                                <AvatarFallback className="bg-black text-white text-sm font-medium rounded-none">
                                     {user?.full_name?.charAt(0).toUpperCase() || "U"}
                                 </AvatarFallback>
                             </Avatar>
                             <div className="flex-1 text-left">
-                                <p className="text-sm font-medium text-gray-900 truncate">{user?.full_name}</p>
-                                <p className="text-xs text-gray-500 capitalize">{user?.role?.toLowerCase()}</p>
+                                <p className="text-sm font-bold text-gray-900 truncate">{user?.full_name}</p>
+                                <p className="text-xs text-gray-500 capitalize tracking-wide">{user?.role?.toLowerCase()}</p>
                             </div>
                         </button>
                     </DropdownMenuTrigger>
@@ -203,10 +203,10 @@ export default function DashboardLayout({
                 <main className="flex-1 overflow-auto">
                     {/* Header */}
                     <header className="sticky top-0 z-40 flex h-14 items-center gap-4 border-b border-gray-100 bg-white/80 backdrop-blur-sm px-6">
-                        <SidebarTrigger className="text-gray-400 hover:text-gray-600" />
+                        <SidebarTrigger className="text-gray-900 hover:text-black" />
                         <div className="flex-1" />
                         <div className="flex items-center gap-2 text-sm">
-                            <span className="px-3 py-1 rounded-full bg-rose-50 text-rose-600 text-xs font-medium capitalize">
+                            <span className="px-3 py-1 bg-black text-white text-xs font-bold uppercase tracking-wider">
                                 {user?.role?.toLowerCase()}
                             </span>
                         </div>

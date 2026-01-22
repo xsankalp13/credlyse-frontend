@@ -3,22 +3,21 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
 import { toast } from "sonner";
-import { GraduationCap, Mail, Lock, Loader2, ArrowRight } from "lucide-react";
+import { Mail, Lock, Loader2, ArrowRight, Eye, EyeOff } from "lucide-react";
 
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
+import { AuthLayout } from "@/components/auth/AuthLayout";
 
 export default function LoginPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const [isGoogleLoading, setIsGoogleLoading] = useState(false);
     const { login, googleLogin } = useAuth();
     const router = useRouter();
 
@@ -40,7 +39,6 @@ export default function LoginPage() {
     };
 
     const handleGoogleLogin = async (idToken: string) => {
-        setIsGoogleLoading(true);
         try {
             await googleLogin(idToken);
             toast.success("Welcome!", { description: "You've signed in with Google." });
@@ -49,126 +47,111 @@ export default function LoginPage() {
             toast.error("Google login failed", {
                 description: error instanceof Error ? error.message : "Authentication failed",
             });
-        } finally {
-            setIsGoogleLoading(false);
         }
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-rose-50 via-white to-purple-50/30">
-            {/* Subtle decorative elements */}
-            <div className="absolute top-0 right-0 w-96 h-96 bg-rose-100/40 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-            <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-100/30 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
-
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4 }}
-                className="relative z-10 w-full max-w-md px-4"
-            >
-                <Card className="border border-gray-100 bg-white/80 backdrop-blur-sm shadow-xl shadow-rose-100/50">
-                    <CardHeader className="text-center pb-2">
-                        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-rose-500 shadow-lg shadow-rose-200">
-                            <GraduationCap className="h-6 w-6 text-white" />
-                        </div>
-                        <CardTitle className="text-2xl font-semibold text-gray-900">
-                            Welcome back
-                        </CardTitle>
-                        <CardDescription className="text-gray-500">
-                            Sign in to your Credlyse account
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent className="pt-4">
-                        <form onSubmit={handleSubmit} className="space-y-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="email" className="text-gray-700">Email</Label>
-                                <div className="relative">
-                                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                                    <Input
-                                        id="email"
-                                        type="email"
-                                        placeholder="you@example.com"
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                        className="pl-10 bg-white border-gray-200 focus:border-rose-300 focus:ring-rose-200 text-gray-900 placeholder:text-gray-400"
-                                        required
-                                    />
-                                </div>
-                            </div>
-                            <div className="space-y-2">
-                                <div className="flex items-center justify-between">
-                                    <Label htmlFor="password" className="text-gray-700">Password</Label>
-                                    <Link
-                                        href="/forgot-password"
-                                        className="text-sm text-rose-500 hover:text-rose-600 transition-colors"
-                                    >
-                                        Forgot password?
-                                    </Link>
-                                </div>
-                                <div className="relative">
-                                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                                    <Input
-                                        id="password"
-                                        type="password"
-                                        placeholder="••••••••"
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                        className="pl-10 bg-white border-gray-200 focus:border-rose-300 focus:ring-rose-200 text-gray-900 placeholder:text-gray-400"
-                                        required
-                                    />
-                                </div>
-                            </div>
-                            <Button
-                                type="submit"
-                                disabled={isLoading || isGoogleLoading}
-                                className="w-full h-11 bg-rose-500 hover:bg-rose-600 text-white font-medium shadow-md shadow-rose-200 transition-all"
-                            >
-                                {isLoading ? (
-                                    <Loader2 className="h-5 w-5 animate-spin" />
-                                ) : (
-                                    <>
-                                        Sign in
-                                        <ArrowRight className="ml-2 h-4 w-4" />
-                                    </>
-                                )}
-                            </Button>
-                        </form>
-
-                        {/* Divider */}
-                        <div className="relative my-6">
-                            <div className="absolute inset-0 flex items-center">
-                                <div className="w-full border-t border-gray-200" />
-                            </div>
-                            <div className="relative flex justify-center text-sm">
-                                <span className="bg-white px-3 text-gray-500">or continue with</span>
-                            </div>
-                        </div>
-
-                        {/* Google Sign-In */}
-                        <GoogleSignInButton
-                            onSuccess={handleGoogleLogin}
-                            onError={(error) => toast.error("Google login failed", { description: error.message })}
-                        />
-
-                        <div className="mt-6 text-center">
-                            <p className="text-sm text-gray-500">
-                                Don't have an account?{" "}
-                                <Link
-                                    href="/signup"
-                                    className="font-medium text-rose-500 hover:text-rose-600 transition-colors"
-                                >
-                                    Create one
-                                </Link>
-                            </p>
-                        </div>
-                    </CardContent>
-                </Card>
-
-                {/* Minimal footer */}
-                <p className="text-center text-xs text-gray-400 mt-6">
-                    Secure authentication powered by Credlyse
+        <AuthLayout mode="login">
+            <div className="text-center mb-8">
+                <h2 className="text-3xl font-bold text-gray-900 tracking-tight">Login</h2>
+                <p className="text-sm text-gray-500 mt-2">
+                    Enter your credentials to get in
                 </p>
-            </motion.div>
-        </div>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="space-y-2">
+                    <Label htmlFor="email" className="text-gray-700 font-medium">Email</Label>
+                    <div className="relative group">
+                        <input
+                            id="email"
+                            type="email"
+                            placeholder="aimerpaix@gmail.com"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            className="w-full h-11 px-4 bg-gray-50 border-none rounded-md focus:ring-2 focus:ring-rose-500/20 text-gray-900 placeholder:text-gray-400 transition-all outline-none"
+                            required
+                        />
+                    </div>
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="password" className="text-gray-700 font-medium">Password</Label>
+                    <div className="relative group">
+                        <input
+                            id="password"
+                            type={showPassword ? "text" : "password"}
+                            placeholder="........"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            className="w-full h-11 px-4 bg-gray-50 border-none rounded-md focus:ring-2 focus:ring-rose-500/20 text-gray-900 placeholder:text-gray-400 transition-all outline-none pr-10"
+                            required
+                        />
+                        <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                        >
+                            {showPassword ? (
+                                <EyeOff className="h-5 w-5" />
+                            ) : (
+                                <Eye className="h-5 w-5" />
+                            )}
+                        </button>
+                    </div>
+                </div>
+
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                        <input type="checkbox" id="remember" className="rounded border-gray-300 text-rose-500 focus:ring-rose-500" />
+                        <label htmlFor="remember" className="text-sm text-gray-600">Remember me</label>
+                    </div>
+                    <Link
+                        href="/forgot-password"
+                        className="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors"
+                    >
+                        Forgot password?
+                    </Link>
+                </div>
+
+                <Button
+                    type="submit"
+                    disabled={isLoading}
+                    className="w-full h-12 bg-gray-900 hover:bg-black text-white font-medium rounded-md transition-all shadow-lg shadow-gray-200"
+                >
+                    {isLoading ? (
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                    ) : (
+                        "Login"
+                    )}
+                </Button>
+            </form>
+
+            <div className="relative my-6">
+                <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-gray-100" />
+                </div>
+                <div className="relative flex justify-center text-sm">
+                    <span className="bg-white px-4 text-gray-400">or continue with</span>
+                </div>
+            </div>
+
+            <GoogleSignInButton
+                onSuccess={handleGoogleLogin}
+                onError={(error) => toast.error("Google login failed", { description: error.message })}
+                className="rounded-md border hover:bg-gray-50"
+            />
+
+            <div className="mt-8 text-center">
+                <p className="text-sm text-gray-500">
+                    Not a member?{" "}
+                    <Link
+                        href="/signup"
+                        className="font-bold text-gray-900 hover:underline transition-all"
+                    >
+                        Create an account
+                    </Link>
+                </p>
+            </div>
+        </AuthLayout>
     );
 }
