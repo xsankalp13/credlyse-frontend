@@ -53,9 +53,13 @@ export interface GoogleAuthRequest {
 }
 
 // Course related types
+export type PlaylistType = "PLAYLIST" | "SINGLE_VIDEO";
+
 export interface Playlist {
     id: string;
     youtube_id: string;
+    Youtubelist_id?: string;  // YouTube playlist/video ID from backend
+    type?: PlaylistType;  // PLAYLIST or SINGLE_VIDEO
     title: string;
     description: string;
     thumbnail_url: string;

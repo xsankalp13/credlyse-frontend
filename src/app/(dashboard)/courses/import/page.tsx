@@ -27,21 +27,39 @@ export default function ImportPlaylistPage() {
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const router = useRouter();
 
-    // Extract playlist ID from various YouTube URL formats
-    const extractPlaylistId = (url: string): string | null => {
-        const patterns = [
+    // Extract YouTube ID from various URL formats (playlist or video)
+    const extractYoutubeId = (url: string): { id: string; type: 'playlist' | 'video' } | null => {
+        // Playlist patterns (check first since video URL can also have list param)
+        const playlistPatterns = [
             /[?&]list=([a-zA-Z0-9_-]+)/,
             /youtube\.com\/playlist\?list=([a-zA-Z0-9_-]+)/,
         ];
 
-        for (const pattern of patterns) {
+        for (const pattern of playlistPatterns) {
             const match = url.match(pattern);
-            if (match) return match[1];
+            if (match) return { id: match[1], type: 'playlist' };
         }
 
-        // If it's just the ID itself
+        // Video patterns
+        const videoPatterns = [
+            /(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/,
+            /youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/,
+            /youtube\.com\/v\/([a-zA-Z0-9_-]{11})/,
+        ];
+
+        for (const pattern of videoPatterns) {
+            const match = url.match(pattern);
+            if (match) return { id: match[1], type: 'video' };
+        }
+
+        // If it's just a playlist ID itself (13+ characters)
         if (/^[a-zA-Z0-9_-]{13,}$/.test(url.trim())) {
-            return url.trim();
+            return { id: url.trim(), type: 'playlist' };
+        }
+
+        // If it's just a video ID (exactly 11 characters)
+        if (/^[a-zA-Z0-9_-]{11}$/.test(url.trim())) {
+            return { id: url.trim(), type: 'video' };
         }
 
         return null;
@@ -50,29 +68,34 @@ export default function ImportPlaylistPage() {
     const handleImport = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        const playlistId = extractPlaylistId(playlistUrl);
-        if (!playlistId) {
+        const extracted = extractYoutubeId(playlistUrl);
+        if (!extracted) {
             toast.error("Invalid URL", {
-                description: "Please enter a valid YouTube playlist URL or ID",
+                description: "Please enter a valid YouTube playlist or video URL",
             });
             return;
         }
 
         setIsImporting(true);
         try {
-            // Ensure we send a valid URL to the backend
-            const importUrl = playlistUrl.includes("youtube.com") || playlistUrl.includes("youtu.be")
-                ? playlistUrl
-                : `https://youtube.com/playlist?list=${playlistId}`;
+            // Build the appropriate URL based on type
+            let importUrl: string;
+            if (playlistUrl.includes("youtube.com") || playlistUrl.includes("youtu.be")) {
+                importUrl = playlistUrl;
+            } else if (extracted.type === 'playlist') {
+                importUrl = `https://youtube.com/playlist?list=${extracted.id}`;
+            } else {
+                importUrl = `https://youtube.com/watch?v=${extracted.id}`;
+            }
 
             const course = await api.importPlaylist(importUrl);
             setImportedCourse({ id: course.id, title: course.title });
-            toast.success("Playlist imported!", {
+            toast.success("Content imported!", {
                 description: `"${course.title}" is ready for AI analysis`,
             });
         } catch (error) {
             toast.error("Import failed", {
-                description: error instanceof Error ? error.message : "Could not import playlist",
+                description: error instanceof Error ? error.message : "Could not import content",
             });
         } finally {
             setIsImporting(false);
@@ -101,9 +124,9 @@ export default function ImportPlaylistPage() {
     return (
         <div className="max-w-2xl mx-auto pb-10">
             <div className="mb-8">
-                <h1 className="text-3xl font-bold text-gray-900 tracking-tight mb-2">Import Playlist</h1>
+                <h1 className="text-3xl font-bold text-gray-900 tracking-tight mb-2">Import Content</h1>
                 <p className="text-gray-500">
-                    Transform a YouTube playlist into a structured course with AI-generated quizzes
+                    Transform a YouTube playlist or video into a structured course with AI-generated quizzes
                 </p>
             </div>
 
@@ -122,9 +145,9 @@ export default function ImportPlaylistPage() {
                                     <Youtube className="h-7 w-7 text-white" />
                                 </div>
                                 <div>
-                                    <h2 className="text-xl font-bold text-gray-900">YouTube Playlist</h2>
+                                    <h2 className="text-xl font-bold text-gray-900">YouTube Content</h2>
                                     <p className="text-gray-500">
-                                        Paste the playlist URL or ID
+                                        Paste a playlist or video URL
                                     </p>
                                 </div>
                             </div>
@@ -132,14 +155,14 @@ export default function ImportPlaylistPage() {
                             <form onSubmit={handleImport} className="space-y-6">
                                 <div className="space-y-3">
                                     <Label htmlFor="playlist" className="text-gray-700 font-medium ml-1">
-                                        Playlist URL or ID
+                                        YouTube URL
                                     </Label>
                                     <div className="relative">
                                         <Link2 className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                                         <Input
                                             id="playlist"
                                             type="text"
-                                            placeholder="https://youtube.com/playlist?list=PLxxxxxx"
+                                            placeholder="https://youtube.com/watch?v=xxx or playlist?list=xxx"
                                             value={playlistUrl}
                                             onChange={(e) => setPlaylistUrl(e.target.value)}
                                             className="pl-12 h-12 bg-gray-50 border-gray-200 focus:border-rose-500 focus:ring-rose-100 text-gray-900 rounded-xl placeholder:text-gray-400"
@@ -147,7 +170,7 @@ export default function ImportPlaylistPage() {
                                         />
                                     </div>
                                     <p className="text-xs text-gray-400 ml-1">
-                                        Supported: Full URL, playlist ID, or video URL with playlist
+                                        Supported: Playlist URL, video URL, or youtu.be short links
                                     </p>
                                 </div>
 
@@ -163,7 +186,7 @@ export default function ImportPlaylistPage() {
                                         </>
                                     ) : (
                                         <>
-                                            Import Playlist
+                                            Import Content
                                             <ArrowRight className="ml-2 h-4 w-4" />
                                         </>
                                     )}
